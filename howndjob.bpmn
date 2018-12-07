@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1xto7ms" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.4.0">
+  <bpmn:process id="hownd_job" name="Start Hownd Job" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Job Requested">
+      <bpmn:outgoing>SequenceFlow_0v622p3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_1565xn5" name="Job Started">
+      <bpmn:incoming>SequenceFlow_1dzxiuw</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0v622p3" sourceRef="StartEvent_1" targetRef="calculate_feasibility" />
+    <bpmn:serviceTask id="calculate_feasibility" name="Calculate Feasibility">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="calculate_feasibility" retries="3" />
+        <zeebe:ioMapping outputBehavior="merge" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0v622p3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1acy2km</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="isJobFeasible" name="Is Job Feasible?">
+      <bpmn:incoming>SequenceFlow_1acy2km</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0p3u3ev</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0wvfxm5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1acy2km" sourceRef="calculate_feasibility" targetRef="isJobFeasible" />
+    <bpmn:serviceTask id="create_job" name="Create Job">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="create_job" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0p3u3ev</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1uox9kq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0p3u3ev" name="This job can be done" sourceRef="isJobFeasible" targetRef="create_job">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$.isFeasible == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="job_cannot_be_done" name="Tell User we can&#39;t even">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="communicate_status" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0wvfxm5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0jekmo7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0wvfxm5" name="This job can&#39;t be done&#10;&#10;" sourceRef="isJobFeasible" targetRef="job_cannot_be_done">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$.isFeasible == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1uox9kq" sourceRef="create_job" targetRef="start_job_yo" />
+    <bpmn:endEvent id="EndEvent_1fh2szw" name="Job not started">
+      <bpmn:incoming>SequenceFlow_0jekmo7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0jekmo7" sourceRef="job_cannot_be_done" targetRef="EndEvent_1fh2szw" />
+    <bpmn:serviceTask id="job_start_comms" name="Tell User about job">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="communicate_status" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_145qt0c</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1dzxiuw</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1dzxiuw" sourceRef="job_start_comms" targetRef="EndEvent_1565xn5" />
+    <bpmn:serviceTask id="start_job_yo" name="Start Job">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="start_job" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1uox9kq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_145qt0c</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_145qt0c" sourceRef="start_job_yo" targetRef="job_start_comms" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="hownd_job">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="155" y="145" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1565xn5_di" bpmnElement="EndEvent_1565xn5">
+        <dc:Bounds x="1216" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1206" y="145" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0v622p3_di" bpmnElement="SequenceFlow_0v622p3">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="277" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1vkpa3m_di" bpmnElement="calculate_feasibility">
+        <dc:Bounds x="277" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_123qm9o_di" bpmnElement="isJobFeasible" isMarkerVisible="true">
+        <dc:Bounds x="444" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="431" y="71" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1acy2km_di" bpmnElement="SequenceFlow_1acy2km">
+        <di:waypoint x="377" y="120" />
+        <di:waypoint x="444" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1ufwd1u_di" bpmnElement="create_job">
+        <dc:Bounds x="630" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0p3u3ev_di" bpmnElement="SequenceFlow_0p3u3ev">
+        <di:waypoint x="494" y="120" />
+        <di:waypoint x="630" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="524" y="92" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_10ll54b_di" bpmnElement="job_cannot_be_done">
+        <dc:Bounds x="630" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0wvfxm5_di" bpmnElement="SequenceFlow_0wvfxm5">
+        <di:waypoint x="469" y="145" />
+        <di:waypoint x="469" y="230" />
+        <di:waypoint x="630" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="511" y="194" width="80" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uox9kq_di" bpmnElement="SequenceFlow_1uox9kq">
+        <di:waypoint x="730" y="120" />
+        <di:waypoint x="845" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1fh2szw_di" bpmnElement="EndEvent_1fh2szw">
+        <dc:Bounds x="803" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="785" y="255" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0jekmo7_di" bpmnElement="SequenceFlow_0jekmo7">
+        <di:waypoint x="730" y="230" />
+        <di:waypoint x="803" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1g3uq4y_di" bpmnElement="job_start_comms">
+        <dc:Bounds x="1040" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1dzxiuw_di" bpmnElement="SequenceFlow_1dzxiuw">
+        <di:waypoint x="1140" y="120" />
+        <di:waypoint x="1216" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0dm1ojh_di" bpmnElement="start_job_yo">
+        <dc:Bounds x="845" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_145qt0c_di" bpmnElement="SequenceFlow_145qt0c">
+        <di:waypoint x="945" y="120" />
+        <di:waypoint x="1040" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
