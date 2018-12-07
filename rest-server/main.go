@@ -1,11 +1,13 @@
 package main
+
 import (
 	"fmt"
-	"github.com/jwulf/zb-example/broker"
-	"github.com/zeebe-io/zeebe/clients/go/zbc"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/jwulf/zb/broker"
+	"github.com/zeebe-io/zeebe/clients/go/zbc"
 )
 
 const brokerAddress = "0.0.0.0:26500"

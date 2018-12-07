@@ -1,15 +1,17 @@
 package main
 
 import (
-	"github.com/jwulf/zb-example/taskworker"
+	"log"
+
+	"github.com/jwulf/zb/taskworker"
 	"github.com/zeebe-io/zeebe/clients/go/entities"
 	"github.com/zeebe-io/zeebe/clients/go/worker"
-	"log"
 )
-const BrokerAddr = "0.0.0.0:26500"
+
+const brokerAddr = "0.0.0.0:26500"
 
 func main() {
-	taskworker.CreateWorker(BrokerAddr, "communicate_status", communicate)
+	taskworker.CreateWorker(brokerAddr, "communicate_status", communicate)
 }
 
 func communicate(client worker.JobClient, job entities.Job) {
@@ -47,5 +49,3 @@ func communicate(client worker.JobClient, job entities.Job) {
 
 	request.Send()
 }
-
-

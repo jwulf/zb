@@ -2,16 +2,18 @@ package taskworker
 
 import (
 	"fmt"
-	"github.com/jwulf/zb-example/broker"
+	"log"
+	"time"
+
+	"github.com/jwulf/zb/broker"
 	"github.com/zeebe-io/zeebe/clients/go/entities"
 	"github.com/zeebe-io/zeebe/clients/go/worker"
 	"github.com/zeebe-io/zeebe/clients/go/zbc"
-    "log"
-    "time"
 )
 
+// CreateWorker - create a worker
 func CreateWorker(brokerAddress string, taskType string, handlerFn worker.JobHandler) {
-    fmt.Println("createWorker")
+	fmt.Println("createWorker")
 	broker.EchoInfo(brokerAddress)
 
 	client := getClient(brokerAddress)
@@ -24,23 +26,24 @@ func CreateWorker(brokerAddress string, taskType string, handlerFn worker.JobHan
 }
 
 func getClient(brokerAddress string) zbc.ZBClient {
-    connected := false
-    var client zbc.ZBClient
-    var err error
+	connected := false
+	var client zbc.ZBClient
+	var err error
 
-    for !connected {
-        log.Println("Getting client...")
-      client, err = zbc.NewZBClient(brokerAddress)
-      if err != nil {
-          log.Println(err)
-          time.Sleep(1000 * time.Millisecond)
-      } else {
-          connected = true
-      }
-    }
-    return client
+	for !connected {
+		log.Println("Getting client...")
+		client, err = zbc.NewZBClient(brokerAddress)
+		if err != nil {
+			log.Println(err)
+			time.Sleep(1000 * time.Millisecond)
+		} else {
+			connected = true
+		}
+	}
+	return client
 }
 
+// FailJob - call this method to fail the task
 func FailJob(client worker.JobClient, job entities.Job) {
 	log.Println("Failed to complete job", job.GetKey())
 	client.NewFailJobCommand().JobKey(job.GetKey()).Retries(job.Retries - 1).Send()

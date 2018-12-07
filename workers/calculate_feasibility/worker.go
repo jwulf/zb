@@ -1,16 +1,18 @@
 package main
 
 import (
-	"github.com/jwulf/zb-example/taskworker"
-	"github.com/zeebe-io/zeebe/clients/go/entities"
-	"github.com/zeebe-io/zeebe/clients/go/worker"
 	"log"
 	"math/rand"
+
+	"github.com/jwulf/zb/taskworker"
+	"github.com/zeebe-io/zeebe/clients/go/entities"
+	"github.com/zeebe-io/zeebe/clients/go/worker"
 )
-const BrokerAddr = "0.0.0.0:26500"
+
+const brokerAddr = "0.0.0.0:26500"
 
 func main() {
-	taskworker.CreateWorker(BrokerAddr, "calculate_feasibility", calculateFeasibility)
+	taskworker.CreateWorker(brokerAddr, "calculate_feasibility", calculateFeasibility)
 }
 
 func calculateFeasibility(client worker.JobClient, job entities.Job) {
@@ -39,8 +41,7 @@ func calculateFeasibility(client worker.JobClient, job entities.Job) {
 	}
 
 	appId := payload["appId"]
-	log.Println("[", job.Type, "]", appId, " is possible: ",  payload["isFeasible"])
+	log.Println("[", job.Type, "]", appId, " is possible: ", payload["isFeasible"])
 
 	request.Send()
 }
-
