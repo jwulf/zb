@@ -1,0 +1,14 @@
+version: '3'
+services:
+  calculate_feasibility:
+    image: zb-calculate_feasibility
+    container_name: calculate_feasibility
+  communicate:
+    image: zb-communicate
+    container_name: communicate
+  create_job:
+    image: zb-create_job
+    container_name: create_job
+  start_job:
+    image: zb-start_job
+    container_name: start_job
