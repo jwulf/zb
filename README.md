@@ -12,3 +12,11 @@ There is a make file that builds all microservices and a `docker-compose.yml` fi
 ```
 make dockerise
 ```
+
+Then to run the microservices, you can just do:
+
+```
+docker-compose up
+```
+
+Set the environment variable `ZEEBE_BROKER_ADDRESS` to use a remote broker.

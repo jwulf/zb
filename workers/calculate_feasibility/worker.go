@@ -9,10 +9,9 @@ import (
 	"github.com/zeebe-io/zeebe/clients/go/worker"
 )
 
-const brokerAddr = "0.0.0.0:26500"
 
 func main() {
-	taskworker.CreateWorker(brokerAddr, "calculate_feasibility", calculateFeasibility)
+	taskworker.CreateWorker("calculate_feasibility", calculateFeasibility)
 }
 
 func calculateFeasibility(client worker.JobClient, job entities.Job) {

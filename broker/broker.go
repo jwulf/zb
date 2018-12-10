@@ -11,7 +11,7 @@ import (
 func EchoInfo(BrokerAddr string) {
     connected := false
     for !connected {
-        log.Println("Contacting Broker")
+        log.Println("Contacting Broker", BrokerAddr)
 
         zbClient, err := zbc.NewZBClient(BrokerAddr)
         if err != nil {
