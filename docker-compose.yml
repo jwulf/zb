@@ -1,7 +1,7 @@
 version: '2'
 services:
   calculate_feasibility:
-    image: zb-calculate_feasibility
+    image: sitapati/zb-calculate_feasibility
     container_name: calculate_feasibility
     network_mode: "host"
     environment:
@@ -12,7 +12,7 @@ services:
         max-size: "10k"
         max-file: "10"
   communicate:
-    image: zb-communicate
+    image: sitapati/zb-communicate
     container_name: communicate
     network_mode: "host"
     environment:
@@ -23,7 +23,7 @@ services:
         max-size: "10k"
         max-file: "10"
   create_job:
-    image: zb-create_job
+    image: sitapati/zb-create_job
     container_name: create_job
     network_mode: "host"
     environment:
@@ -34,7 +34,7 @@ services:
         max-size: "10k"
         max-file: "10"
   start_job:
-    image: zb-start_job
+    image: sitapati/zb-start_job
     container_name: start_job
     network_mode: "host"
     environment:
