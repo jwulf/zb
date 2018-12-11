@@ -14,11 +14,13 @@ import (
 func main() {
 	roundsPtr := flag.Int("rounds", 100, "number of rounds")
 	brokerPtr := flag.String("broker", "0.0.0.0", "broker address")
+	workflowPtr := flag.String("workflow", "test", "workflow id")
 	flag.Parse()
 
 	fmt.Println("broker:", *brokerPtr)
 
 	brokerAddr := *brokerPtr + ":26500"
+	workflow := *workflowPtr
 	log.Println("Broker:", brokerAddr)
 	time.Sleep(5000 * time.Millisecond)
 	totalRounds := *roundsPtr
@@ -27,13 +29,13 @@ func main() {
 	for round := 0; round < totalRounds; round ++ {
 		log.Println("Round:", round + 1, "of", totalRounds)
 		for i := 0; i < 1000; i++ {
-			createWorkflowInstance(brokerAddr, key + "-" + strconv.Itoa(round) + "-" + strconv.Itoa(i))
+			createWorkflowInstance(brokerAddr, key + "-" + strconv.Itoa(round) + "-" + strconv.Itoa(i), workflow)
 		}
 		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
-func createWorkflowInstance(brokerAddr, appId string) {
+func createWorkflowInstance(brokerAddr, appId string, workflowId string) {
 	client, err := zbc.NewZBClient(brokerAddr)
 	if err != nil {
 		panic(err)
@@ -43,7 +45,7 @@ func createWorkflowInstance(brokerAddr, appId string) {
 	payload := make(map[string]interface{})
 	payload["appId"] = appId
 
-	request, err := client.NewCreateInstanceCommand().BPMNProcessId("hownd_job").LatestVersion().PayloadFromMap(payload)
+	request, err := client.NewCreateInstanceCommand().BPMNProcessId(workflowId).LatestVersion().PayloadFromMap(payload)
 	if err != nil {
 		fmt.Println(err)
 	} else {

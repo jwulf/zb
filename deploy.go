@@ -12,7 +12,7 @@ import (
 
 func main() {
 	brokerPtr := flag.String("broker", "0.0.0.0", "broker address")
-	workflowPtr := flag.String("workflow", "howndjob.bpmn", "workflow file")
+	workflowPtr := flag.String("workflow", "test.bpmn", "workflow file")
 	flag.Parse()
 
 	brokerAddr := *brokerPtr + ":26500"

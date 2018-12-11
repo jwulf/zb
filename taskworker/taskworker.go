@@ -20,6 +20,8 @@ func getBrokerAddress() string {
 	brokerFromCmdline := *brokerPtr
 	brokerFromEnv := os.Getenv("ZEEBE_BROKER_ADDRESS")
 	var brokerAddress string
+	log.Println("-broker command-line switch:", brokerFromCmdline)
+	log.Println("ZEEBE_BROKER_ADDRESS env var:", brokerFromEnv)
 	if brokerFromCmdline == "" {
 		if brokerFromEnv == "" {
 			brokerAddress = "0.0.0.0:26500"

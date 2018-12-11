@@ -4,6 +4,8 @@ services:
     image: zb-calculate_feasibility
     container_name: calculate_feasibility
     network_mode: "host"
+    environment:
+       - ZEEBE_BROKER_ADDRESS
     logging:
       driver: "json-file"
       options:
@@ -13,6 +15,8 @@ services:
     image: zb-communicate
     container_name: communicate
     network_mode: "host"
+    environment:
+       - ZEEBE_BROKER_ADDRESS
     logging:
       driver: "json-file"
       options:
@@ -22,6 +26,8 @@ services:
     image: zb-create_job
     container_name: create_job
     network_mode: "host"
+    environment:
+       - ZEEBE_BROKER_ADDRESS
     logging:
       driver: "json-file"
       options:
@@ -31,6 +37,8 @@ services:
     image: zb-start_job
     container_name: start_job
     network_mode: "host"
+    environment:
+       - ZEEBE_BROKER_ADDRESS
     logging:
       driver: "json-file"
       options:
