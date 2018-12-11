@@ -22,8 +22,8 @@
 		echo "    image: zb-$$d" >> $(DOCKERCOMPOSE) && \
 		echo "    container_name: $$d" >> $(DOCKERCOMPOSE) && \
 		echo "    network_mode: \"host\"" >> $(DOCKERCOMPOSE) && \
-		echo "    environment:" && \
-		echo "       - ZEEBE_BROKER_ADDRESS" && \
+		echo "    environment:" >> $(DOCKERCOMPOSE) && \
+		echo "       - ZEEBE_BROKER_ADDRESS" >> $(DOCKERCOMPOSE) && \
 		echo "    logging:" >> $(DOCKERCOMPOSE) && \
 		echo "      driver: \"json-file\"" >> $(DOCKERCOMPOSE) && \
 		echo "      options:" >> $(DOCKERCOMPOSE) && \
