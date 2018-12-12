@@ -49,9 +49,6 @@ Temporary Items
 # binaries
 main
 
-# Auto-generated docker-compose.yml
-docker-compose.yml
-
 # Goland files
 .idea/vcs.xml
 .idea/workspace.xml
