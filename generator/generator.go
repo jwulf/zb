@@ -2,44 +2,73 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/google/uuid"
 	"github.com/zeebe-io/zeebe/clients/go/zbc"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
+type generator struct {
+	client zbc.ZBClient
+	uuid string
+}
 
 func main() {
-	roundsPtr := flag.Int("rounds", 100, "number of rounds")
-	brokerPtr := flag.String("broker", "0.0.0.0", "broker address")
+	numJobsPtr := flag.Int("number", 10000, "number of workflow instances to start")
+	brokerPtr := flag.String("brokers", "", "comma-separated broker addresses")
 	workflowPtr := flag.String("workflow", "test", "workflow id")
 	flag.Parse()
 
-	fmt.Println("broker:", *brokerPtr)
+	brokersFromEnv := os.Getenv("ZEEBE_BROKERS")
 
-	brokerAddr := *brokerPtr + ":26500"
-	workflow := *workflowPtr
-	log.Println("Broker:", brokerAddr)
-	client, err := zbc.NewZBClient(brokerAddr)
-	if err != nil {
-		panic(err)
+	var brokers []string
+	if *brokerPtr != "" {
+		brokers = strings.Split(*brokerPtr, ",")
+	} else if brokersFromEnv != "" {
+		brokers = strings.Split(brokersFromEnv, ",")
+	} else {
+		brokers[0] = "0.0.0.0"
 	}
 
-	totalRounds := *roundsPtr
+	log.Println("Brokers:", brokers)
+	log.Println("Number of jobs to start:", *numJobsPtr)
+	log.Println("Workflow id:", *workflowPtr)
+
+	workflow := *workflowPtr
+	n := *numJobsPtr
+
+	generators := make([]generator, 0)
 	rand.Seed(time.Now().UnixNano())
-	key := strconv.Itoa(rand.Intn(100))
-	for round := 0; round < totalRounds; round ++ {
-		log.Println("Round:", round + 1, "of", totalRounds)
-		for i := 0; i < 1000; i++ {
-			createWorkflowInstance(client, brokerAddr, key + "-" + strconv.Itoa(round) + "-" + strconv.Itoa(i), workflow)
+
+	for _, broker := range brokers {
+		client, err := zbc.NewZBClient(broker + ":26500")
+		if err != nil {
+			panic(err)
 		}
-		time.Sleep(1000 * time.Millisecond)
+		generatorUuid, err := uuid.NewUUID()
+		var generatorId string
+		if err != nil {
+			log.Println(err)
+			generatorId = strconv.Itoa(rand.Intn(100000))
+		} else {
+			generatorId = generatorUuid.String()
+		}
+		generators = append(generators, generator{ client, generatorId})
+	}
+
+	total := strconv.Itoa(n)
+	for i := 0; i < n; i++ {
+		for _, g := range generators {
+			createWorkflowInstance(g.client, g.uuid+"-"+strconv.Itoa(i)+"/"+total, workflow)
+		}
 	}
 }
 
-func createWorkflowInstance(client zbc.ZBClient, brokerAddr, appId string, workflowId string) {
+func createWorkflowInstance(client zbc.ZBClient, appId string, workflowId string) {
 
 	// After the workflow is deployed.
 	payload := make(map[string]interface{})
@@ -47,14 +76,14 @@ func createWorkflowInstance(client zbc.ZBClient, brokerAddr, appId string, workf
 
 	request, err := client.NewCreateInstanceCommand().BPMNProcessId(workflowId).LatestVersion().PayloadFromMap(payload)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	} else {
 
 		msg, err := request.Send()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		} else {
-			fmt.Println(appId, msg.String())
+			log.Println(appId, msg.String())
 		}
 	}
 }
