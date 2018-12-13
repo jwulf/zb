@@ -31,12 +31,15 @@ func main() {
 	} else if brokersFromEnv != "" {
 		brokers = strings.Split(brokersFromEnv, ",")
 	} else {
-		brokers[0] = "0.0.0.0"
+		brokers = make([]string, 0)
+		brokers = append(brokers, "0.0.0.0")
 	}
 
 	log.Println("Brokers:", brokers)
 	log.Println("Number of jobs to start:", *numJobsPtr)
 	log.Println("Workflow id:", *workflowPtr)
+	log.Println("Starting in 2s...")
+	time.Sleep(2000*time.Millisecond)
 
 	workflow := *workflowPtr
 	n := *numJobsPtr
@@ -45,7 +48,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	for _, broker := range brokers {
-		client, err := zbc.NewZBClient(broker + ":26500")
+		client, err := zbc.NewZBClient(strings.TrimSpace(broker) + ":26500")
 		if err != nil {
 			panic(err)
 		}
@@ -66,6 +69,7 @@ func main() {
 			createWorkflowInstance(g.client, g.uuid+"-"+strconv.Itoa(i)+"/"+total, workflow)
 		}
 	}
+	log.Println("Workflow Instances created: " + strconv.Itoa(n* len(generators)))
 }
 
 func createWorkflowInstance(client zbc.ZBClient, appId string, workflowId string) {
