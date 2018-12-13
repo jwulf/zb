@@ -1,10 +1,8 @@
 package taskworker
 
 import (
-	"flag"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/jwulf/zb/broker"
@@ -13,30 +11,11 @@ import (
 	"github.com/zeebe-io/zeebe/clients/go/zbc"
 )
 
-// GetBrokerAddress - check the command-line, then the environment
-func getBrokerAddress() string {
-	brokerPtr := flag.String("broker", "", "broker address")
-	flag.Parse()
-	brokerFromCmdline := *brokerPtr
-	brokerFromEnv := os.Getenv("ZEEBE_BROKER_ADDRESS")
-	var brokerAddress string
-	log.Println("-broker command-line switch:", brokerFromCmdline)
-	log.Println("ZEEBE_BROKER_ADDRESS env var:", brokerFromEnv)
-	if brokerFromCmdline == "" {
-		if brokerFromEnv == "" {
-			brokerAddress = "0.0.0.0:26500"
-		} else {
-			brokerAddress = brokerFromEnv + ":26500"
-		}
-	} else {
-		brokerAddress = brokerFromCmdline + ":26500"
-	}
-	return brokerAddress
-}
+
 
 // CreateWorker - create a worker
 func CreateWorker(taskType string, handlerFn worker.JobHandler) {
-	brokerAddress := getBrokerAddress()
+	brokerAddress := broker.GetBrokerAddress()
 	log.Println("Creating", taskType, "worker for broker:", brokerAddress)
 
 	broker.EchoInfo(brokerAddress)

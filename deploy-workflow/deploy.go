@@ -1,26 +1,26 @@
-package main
+package deploy_workflow
 
 import (
 	"flag"
 	"fmt"
-	"log"
-
 	"github.com/jwulf/zb/broker"
 	"github.com/zeebe-io/zeebe/clients/go/zbc"
+	"log"
 )
 
 
 func main() {
-	brokerPtr := flag.String("broker", "0.0.0.0", "broker address")
 	workflowPtr := flag.String("workflow", "test.bpmn", "workflow file")
 	flag.Parse()
 
-	brokerAddr := *brokerPtr + ":26500"
 	workflow := *workflowPtr
-	log.Println("Deploying", workflow, "to", brokerAddr)
 
-	broker.EchoInfo(brokerAddr)
-	deployWorkflow(brokerAddr, workflow)
+	brokerAddress := broker.GetBrokerAddress()
+
+	log.Println("Deploying", workflow, "to", brokerAddress)
+
+	broker.EchoInfo(brokerAddress)
+	deployWorkflow(brokerAddress, workflow)
 }
 
 func deployWorkflow(brokerAddr string, workflow string) {
