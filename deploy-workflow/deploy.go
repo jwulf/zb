@@ -1,4 +1,4 @@
-package deploy_workflow
+package main
 
 import (
 	"flag"
