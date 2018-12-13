@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ type generator struct {
 }
 
 func main() {
+	jobsStarted := 0
 	numJobsPtr := flag.Int("number", 10000, "number of workflow instances to start")
 	brokerPtr := flag.String("brokers", "", "comma-separated broker addresses")
 	workflowPtr := flag.String("workflow", "test", "workflow id")
@@ -41,11 +43,25 @@ func main() {
 	log.Println("Starting in 2s...")
 	time.Sleep(2000*time.Millisecond)
 
+	start := time.Now()
+
+
 	workflow := *workflowPtr
 	n := *numJobsPtr
 
 	generators := make([]generator, 0)
 	rand.Seed(time.Now().UnixNano())
+
+	// Trap Ctrl-C
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func(){
+		for sig := range c {
+			// sig is a ^C, handle it
+			log.Println(sig)
+			finalReport(jobsStarted, start)
+		}
+	}()
 
 	for _, broker := range brokers {
 		client, err := zbc.NewZBClient(strings.TrimSpace(broker) + ":26500")
@@ -67,11 +83,19 @@ func main() {
 	for i := 0; i < n; i++ {
 		for _, g := range generators {
 			createWorkflowInstance(g.client, g.uuid+"-"+strconv.Itoa(i)+"/"+total, workflow)
+			jobsStarted = jobsStarted + 1
 		}
 	}
-	log.Println("Workflow Instances created: " + strconv.Itoa(n* len(generators)))
+	finalReport(jobsStarted, start)
 }
 
+func finalReport(jobsStarted int, start time.Time) {
+	elapsed := time.Since(start)
+
+	log.Println("Workflow Instances created: " + strconv.Itoa(jobsStarted))
+	log.Printf("Execution time: %s", elapsed)
+
+}
 func createWorkflowInstance(client zbc.ZBClient, appId string, workflowId string) {
 
 	// After the workflow is deployed.
