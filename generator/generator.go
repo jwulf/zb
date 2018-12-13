@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -53,14 +54,12 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Trap Ctrl-C
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func(){
-		for sig := range c {
-			// sig is a ^C, handle it
-			log.Println(sig)
-			finalReport(jobsStarted, start)
-		}
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		finalReport(jobsStarted, start)
+		os.Exit(1)
 	}()
 
 	for _, broker := range brokers {
