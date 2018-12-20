@@ -4,19 +4,25 @@
 	GOCOMPILE=CGO_ENABLED=0 GOOS=linux $(GOBUILD) -a -installsuffix cgo -o main .
 	DOCKERCOMPOSE=../../docker-compose.yml
 	DOCKERFILE=../../taskworker/Dockerfile
+	FILES=ls | grep -v do_work.sh
 
     all:
-	    make build
+		make build
+	    make build_linux
 	    make dockerise
     build:
 		cd workers && \
-		for d in `ls`; do cd $$d && echo "Building $$d" && $(GOCOMPILE) && echo "Size: `du -h main`" && cd ..; done && \
+		for d in `$(FILES)`; do cd $$d && echo "Building $$d" && $(GOBUILD) && echo "Size: `du -h main`" && cd ..; done && \
+		cd ..
+    build_linux:
+		cd workers && \
+		for d in `$(FILES)`; do cd $$d && echo "Building $$d" && $(GOCOMPILE) && echo "Size: `du -h main`" && cd ..; done && \
 		cd ..
     dockerise:
 		echo "version: '2'" > docker-compose.yml && \
 		echo "services:" >> docker-compose.yml && \
 		cd workers && \
-		for d in `ls`; do cd $$d && \
+		for d in `$(FILES)`; do cd $$d && \
 		docker build -t sitapati/zb-$$d -f $(DOCKERFILE) . && \
 		echo "  $$d:" >> $(DOCKERCOMPOSE) && \
 		echo "    image: sitapati/zb-$$d" >> $(DOCKERCOMPOSE) && \
